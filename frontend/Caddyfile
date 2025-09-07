@@ -1,0 +1,20 @@
+# Caddy configuration for serving the built frontend and proxying API
+{
+  # optional: ACME email can be set via env ACME_EMAIL
+}
+
+{$DOMAIN} {
+  encode zstd gzip
+  root * /srv
+  file_server
+
+  @api path /api/*
+  handle @api {
+    reverse_proxy backend:3000
+  }
+
+  @socket path /socket.io/*
+  handle @socket {
+    reverse_proxy backend:3000
+  }
+}

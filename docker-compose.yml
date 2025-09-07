@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: calls-backend
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET}
+      - BOT_TOKEN=${BOT_TOKEN}
+      - ROOM_SECRET=${ROOM_SECRET}
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: calls-frontend
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ACME_EMAIL=${ACME_EMAIL}
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+
+  bot:
+    build: ./bot
+    container_name: calls-bot
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - BOT_USERNAME=${BOT_USERNAME}
+      - ROOM_SECRET=${ROOM_SECRET}
+      - WEBAPP_URL=https://${DOMAIN}
+    depends_on:
+      - frontend
+
+networks:
+  default:
+    name: calls-network
